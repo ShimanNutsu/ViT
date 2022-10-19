@@ -122,3 +122,10 @@ if not len(args.from_checkpoint):
 
 # Train
 trainer.fit(vit, datamodule=datamodule)
+
+# TODO: cosine ecodings
+# TODO: linear encodings
+# TODO: learning rate
+# TODO: scheduler one cycle linear 10k warmup
+# TODO: gradient clipping
+# TODO: Attention reduce projection dimension
