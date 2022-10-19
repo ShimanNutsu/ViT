@@ -69,6 +69,8 @@ wandb_logger = WandbLogger(project=project_name, name=f'EuroSAT s{args.seed}')
 # ------------------------------------------------------------
 
 datamodule = EuroSATDataModule(args.path_to_dataset)
+datamodule.prepare_data()
+datamodule.setup()
 
 # model
 dict_args = vars(args)

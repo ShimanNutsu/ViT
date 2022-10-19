@@ -15,17 +15,16 @@ class EuroSATDataModule(pl.LightningDataModule):
             [transforms.ToTensor(),
              transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
         ])
-        self.eurosat_test = EuroSAT(self.data_dir)
-        self.eurosat_predict = EuroSAT(self.data_dir)
-        eurosat_full = EuroSAT(self.data_dir, transform=self.transform)
-        self.eurosat_train, self.eurosat_val = random_split(eurosat_full, [25000, 2000])
 
     def prepare_data(self):
         ds = EuroSAT(root=self.data_dir, download=True)
         print(len(ds))
 
     def setup(self, stage: Optional[str] = None):
-        pass
+        self.eurosat_test = EuroSAT(self.data_dir)
+        self.eurosat_predict = EuroSAT(self.data_dir)
+        eurosat_full = EuroSAT(self.data_dir, transform=self.transform)
+        self.eurosat_train, self.eurosat_val = random_split(eurosat_full, [25000, 2000])
 
     def train_dataloader(self):
         return DataLoader(self.eurosat_train, batch_size=self.batch_size)
