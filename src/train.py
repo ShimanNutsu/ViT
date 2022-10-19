@@ -76,7 +76,6 @@ datamodule.setup()
 dict_args = vars(args)
 dict_args['steps_per_epoch'] = len(datamodule.train_dataloader())
 vit = ViT(**dict_args)
-state_dict = torch.load(args.sa_state_dict)
 # ------------------------------------------------------------
 # Callbacks
 # ------------------------------------------------------------
