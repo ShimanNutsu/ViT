@@ -72,12 +72,12 @@ class ViT(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        y_pred = self(batch)
+        y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        y_pred = self(batch)
+        y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
 
     def loss_fn(self, y_pred, y):
