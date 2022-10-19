@@ -3,7 +3,7 @@ import torch.nn as nn
 import pytorch_lightning as pl
 
 from src.modules.img_patches import ImgPatches
-
+from src.modules.transformer import Transformer
 
 class ViT(pl.LightningModule):
     def __init__(self,
@@ -18,10 +18,10 @@ class ViT(pl.LightningModule):
                  drop_rate=0.3):
         super().__init__()
         self.embed_dim = embed_dim
-
-        self.img_patches = ImgPatches(in_ch=in_ch, embed_dim=self.embed_dim, patch_size=patch_size)
-        self.learnable_class_embeddings = nn.Parameter(torch.ones((1, 1, embed_dim)))
+        self.img_patches = ImgPatches(in_ch=in_ch, embed_dim=embed_dim, patch_size=patch_size)
+        self.cl = nn.Parameter(torch.ones((1, 1, embed_dim)))
         self.pos = nn.Parameter(torch.ones((1, 197, embed_dim)))
+        self.transformer = Transformer(depth, embed_dim, num_heads, mlp_ratio, drop_rate)
 
         pass
 
@@ -35,8 +35,7 @@ class ViT(pl.LightningModule):
 
         # Perform position encoding
         x = x + self.pos.data
-
-        return x
+        return self.transformer(x)
 
     def configure_optimizers(self):
         pass
