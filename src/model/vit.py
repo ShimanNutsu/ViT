@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 import torch
 import torch.nn as nn
 import pytorch_lightning as pl
+import torchmetrics
 
 from src.modules.img_patches import ImgPatches
 from src.modules.transformer import Transformer
@@ -39,6 +40,8 @@ class ViT(pl.LightningModule):
         self.pos = nn.Parameter(torch.ones((1, (img_size // patch_size) ** 2 + 1, embed_dim)))
         self.transformer = Transformer(depth, embed_dim, num_heads, mlp_ratio, drop_rate)
         self.classifier = nn.Linear(embed_dim, num_classes)
+        self.train_acc = torchmetrics.Accuracy()
+        self.val_acc = torchmetrics.Accuracy()
 
         self.save_hyperparameters()
 
@@ -69,17 +72,24 @@ class ViT(pl.LightningModule):
         x, y = batch
         y_pred = self.forward(x)
         loss = self.loss_fn(y_pred, y)
+        self.train_acc(y_pred, y)
+        self.log('Train acc', self.train_acc, on_step=True)
+        self.log('Train CE', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
+        self.val_acc(y_pred, y)
+        self.log('Train acc', self.val_acc, on_step=True)
+        self.log('Validation CE', loss)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
+        self.log('Test CE', loss)
 
     def loss_fn(self, y_pred, y):
         return nn.functional.cross_entropy(y_pred, y)
