@@ -43,7 +43,7 @@ class Attention(nn.Module):
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.proj_dropout = nn.Dropout(proj_dropout)
 
-        self.softmax = nn.Softmax(dim = 1)
+        self.softmax = nn.Softmax(dim=1)
         self.out = nn.Linear(num_heads * dim, dim)
 
     def forward(self, x):
@@ -54,6 +54,7 @@ class Attention(nn.Module):
                               q[i].bmm(torch.transpose(k[i], 1, 2))).bmm(v[i])
                               for i in range(self.num_heads)]
         x = torch.cat(heads, dim = 2)
+        print(x.shape)
         x = self.attn_dropout(self.out(x))
         return x
 
