@@ -37,6 +37,7 @@ class ViT(pl.LightningModule):
         self.cl = nn.Parameter(torch.ones((1, 1, embed_dim)))
         self.pos = nn.Parameter(torch.ones((1, 197, embed_dim)))
         self.transformer = Transformer(depth, embed_dim, num_heads, mlp_ratio, drop_rate)
+        self.classifier = nn.Linear(embed_dim, num_classes)
 
         self.save_hyperparameters()
 
@@ -50,7 +51,7 @@ class ViT(pl.LightningModule):
 
         # Perform position encoding
         x = x + self.pos.data
-        return self.transformer(x)
+        return self.classifier(self.transformer(x)[0])
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
@@ -64,10 +65,20 @@ class ViT(pl.LightningModule):
                                  'frequency': 1}, }
 
     def training_step(self, batch, batch_idx):
-        pass
+        x, y = batch
+        y_pred = self.forward(x)
+        loss = self.loss_fn(y_pred, y)
+        return loss
 
     def validation_step(self, batch, batch_idx):
-        pass
+        x, y = batch
+        y_pred = self(batch)
+        loss = self.loss_fn(y_pred, y)
 
     def test_step(self, batch, batch_idx):
-        pass
+        x, y = batch
+        y_pred = self(batch)
+        loss = self.loss_fn(y_pred, y)
+
+    def loss_fn(self, y_pred, y):
+        return nn.functional.cross_entropy(y_pred, y)
