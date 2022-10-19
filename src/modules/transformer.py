@@ -53,8 +53,7 @@ class Attention(nn.Module):
         heads = [self.softmax(self.scale *
                               q[i].bmm(torch.transpose(k[i], 1, 2))).bmm(v[i])
                               for i in range(self.num_heads)]
-        x = torch.cat(heads, dim = 2)
-        print(x.shape)
+        x = torch.cat(heads, dim=2)
         x = self.attn_dropout(self.out(x))
         return x
 

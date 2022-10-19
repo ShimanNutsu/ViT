@@ -52,7 +52,7 @@ class ViT(pl.LightningModule):
 
         # Perform position encoding
         x = x + self.pos.data
-        return self.classifier(self.transformer(x)[0])
+        return self.classifier(self.transformer(x)[:, 0])
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
