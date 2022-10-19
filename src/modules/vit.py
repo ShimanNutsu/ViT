@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 
-from src.model.img_patches import ImgPatches
+from src.modules.img_patches import ImgPatches
 
 
 class ViT(pl.LightningModule):

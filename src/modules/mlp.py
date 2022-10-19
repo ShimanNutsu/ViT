@@ -7,7 +7,7 @@ class MLP(nn.Module):
         super().__init__()
         self.mlp = nn.Sequential(
             nn.Linear(in_features, hidden_features),
-            nn.GeLU(),
+            nn.GELU(),
             nn.Linear(hidden_features, out_features)
         )
 
