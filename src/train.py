@@ -69,12 +69,10 @@ wandb_logger = WandbLogger(project=project_name, name=f'EuroSAT s{args.seed}')
 # ------------------------------------------------------------
 
 datamodule = EuroSATDataModule(args.path_to_dataset)
-datamodule.prepare_data()
-datamodule.setup()
 
 # model
 dict_args = vars(args)
-dict_args['steps_per_epoch'] = len(EuroSATDataModule.train_dataloader())
+dict_args['steps_per_epoch'] = len(datamodule.train_dataloader())
 vit = ViT(**dict_args)
 state_dict = torch.load(args.sa_state_dict)
 # ------------------------------------------------------------
