@@ -36,7 +36,6 @@ class ViT(pl.LightningModule):
         self.embed_dim = embed_dim
         self.img_patches = ImgPatches(in_ch=in_ch, embed_dim=embed_dim, patch_size=patch_size)
         self.learnable_class_embeddings = nn.Parameter(torch.ones((1, 1, embed_dim)))
-        img_size = 64
         self.pos = nn.Parameter(torch.ones((1, (img_size // patch_size) ** 2 + 1, embed_dim)))
         self.transformer = Transformer(depth, embed_dim, num_heads, mlp_ratio, drop_rate)
         self.classifier = nn.Linear(embed_dim, num_classes)

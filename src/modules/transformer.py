@@ -36,9 +36,9 @@ class Attention(nn.Module):
         self.num_heads = num_heads
         self.scale = 1./dim**0.5
 
-        self.q = [nn.Linear(dim, dim) for _ in range(num_heads)]
-        self.k = [nn.Linear(dim, dim) for _ in range(num_heads)]
-        self.v = [nn.Linear(dim, dim) for _ in range(num_heads)]
+        self.q = nn.ModuleList([nn.Linear(dim, dim) for _ in range(num_heads)])
+        self.k = nn.ModuleList([nn.Linear(dim, dim) for _ in range(num_heads)])
+        self.v = nn.ModuleList([nn.Linear(dim, dim) for _ in range(num_heads)])
 
         self.attn_dropout = nn.Dropout(attn_dropout)
         self.proj_dropout = nn.Dropout(proj_dropout)
