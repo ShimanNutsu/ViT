@@ -8,7 +8,7 @@ class ImgPatches(nn.Module):
                  embed_dim: int = 768,
                  patch_size: int = 16):
         super().__init__()
-        self.patch_embed = nn.Conv2d(in_ch, embed_dim, patch_size)
+        self.patch_embed = nn.Conv2d(in_ch, embed_dim, patch_size, patch_size)
 
     def forward(self, img):
         patches = self.patch_embed(img)
