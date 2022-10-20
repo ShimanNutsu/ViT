@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import yaml
 
 import wandb
 
@@ -18,25 +19,13 @@ from argparse import ArgumentParser
 from dataset.eurosat import EuroSATDataModule
 from src.model.vit import ViT
 
-# Sweep parameters
-hyperparameter_defaults = dict(
-    name='sweep1',
-    path_to_dataset='./dataset/data',
-    batch_size=32,
-    lr=0.0004,
-    grad_batches=1,
-    max_epochs=20,
-    img_size=64,
-    devices=0,
-    seed=0,
-)
-
-wandb.init(config=hyperparameter_defaults)
-config = wandb.config
 
 
-def train(config):
-    dict_args = vars(config)
+def train():
+    wandb.init()
+    dict_args = dict(wandb.config)
+    config = wandb.config
+
 
     seed_everything(dict_args['seed'], workers=True)
 
@@ -88,9 +77,7 @@ def train(config):
     trainer.fit(vit, datamodule=datamodule)
 
 
-if __name__ == '__main__':
-    print(f'Starting a run with {config}')
-    train(config)
+
 
 # TODO: cosine ecodings
 # TODO: linear encodings

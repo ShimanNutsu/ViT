@@ -8,3 +8,11 @@ parameters:
     distribution: log_uniform
     min: -10
     max: -3
+  seed:
+    value: 0
+  path_to_dataset:
+    value: ./dataset/data
+  devices:
+    value: 0
+  max_epochs:
+    value: 2
