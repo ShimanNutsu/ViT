@@ -15,8 +15,9 @@ class EuroSATDataModule(pl.LightningDataModule):
             [transforms.ToTensor(),
              transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
              transforms.RandomHorizontalFlip(),
-             transforms.RandomRotation(180, expand=True),
-             transforms.Resize(64)
+             transforms.RandomVerticalFlip(),
+             # transforms.RandomRotation(180, expand=True),
+             # transforms.Resize(64)
              ])
 
     def prepare_data(self):
