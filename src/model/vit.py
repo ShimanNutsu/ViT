@@ -51,6 +51,8 @@ class ViT(pl.LightningModule):
         self.embed_dim = embed_dim
         self.img_patches = ImgPatches(in_ch=in_ch, embed_dim=embed_dim, patch_size=patch_size)
         self.learnable_class_embeddings = nn.Parameter(torch.ones((1, 1, embed_dim)))
+        self.pos = nn.Parameter(torch.randn((1, (img_size // patch_size) ** 2 + 1, embed_dim)))
+        nn.init.kaiming_normal_(self.pos.data)
         self.transformer = Transformer(depth, embed_dim, num_heads, mlp_ratio, drop_rate)
         self.classifier = nn.Linear(embed_dim, num_classes)
         self.train_acc = torchmetrics.Accuracy()
@@ -67,7 +69,7 @@ class ViT(pl.LightningModule):
         x = torch.concat((x, expanded_class_embeddings), dim=1)
 
         # Perform position encoding
-        x = x + posemb_sincos_2d(x)
+        x = x + self.pos.data
         return self.classifier(self.transformer(x)[:, 0])
 
     def configure_optimizers(self):
