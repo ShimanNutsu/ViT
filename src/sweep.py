@@ -10,4 +10,4 @@ print(sweep_configuration)
 
 sweep_id = wandb.sweep(sweep=sweep_configuration, project='test_sweep')
 
-wandb.agent(sweep_id, function=train, count=4)
+wandb.agent(sweep_id, function=train)

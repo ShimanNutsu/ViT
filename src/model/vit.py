@@ -33,9 +33,11 @@ class ViT(pl.LightningModule):
                  num_heads=12,
                  mlp_ratio=4,
                  drop_rate=0.3,
-                 lr: float = 0.00025,
+                 lr: float = 0.00015,
+                 momentum: float = 0.9,
                  **kwargs):
         super().__init__()
+        self.momentum = momentum
         self.lr = lr
         self.embed_dim = embed_dim
         self.img_patches = ImgPatches(in_ch=in_ch, embed_dim=embed_dim, patch_size=patch_size)
@@ -68,7 +70,8 @@ class ViT(pl.LightningModule):
         scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr,
                                                         epochs=self.hparams['max_epochs'],
                                                         steps_per_epoch=self.hparams['steps_per_epoch'],
-                                                        pct_start=0.2)
+                                                        pct_start=0.05,
+                                                        anneal_strategy='linear')
         return {"optimizer": optimizer,
                 "lr_scheduler": {'scheduler': scheduler,
                                  'interval': 'step',
