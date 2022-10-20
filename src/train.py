@@ -1,8 +1,5 @@
 import sys
 from pathlib import Path
-import yaml
-
-import wandb
 
 sys.path.append("..")
 
@@ -19,65 +16,112 @@ from argparse import ArgumentParser
 from dataset.eurosat import EuroSATDataModule
 from src.model.vit import ViT
 
+# ------------------------------------------------------------
+# Constants
+# ------------------------------------------------------------
 
+DEFAULT_SEED = 42
+# ------------------------------------------------------------
+# Parse args
+# ------------------------------------------------------------
+parser = ArgumentParser()
 
-def train():
-    wandb.init()
-    dict_args = dict(wandb.config)
-    config = wandb.config
+# add PROGRAM level args
+program_parser = parser.add_argument_group('program')
 
+# logger parameters
+program_parser.add_argument("--log_model", default=True)
 
-    seed_everything(dict_args['seed'], workers=True)
+# dataset parameters
+program_parser.add_argument("--path_to_dataset", type=Path,
+                            default=Path(__file__).absolute().parent / "dataset" / "data",
+                            help="Path to the dataset directory")
 
-    datamodule = EuroSATDataModule(config.path_to_dataset)
-    datamodule.prepare_data()
-    datamodule.setup()
-    dict_args['steps_per_epoch'] = len(datamodule.train_dataloader())
-    vit = ViT(**dict_args)
+# Experiment parameters
+program_parser.add_argument("--batch_size", type=int, default=2)
+program_parser.add_argument("--from_checkpoint", type=str, default='')
+program_parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
 
-    wandb_logger = WandbLogger()
-    monitor = 'Val acc'
+# Add model specific args
+parser = ViT.add_model_specific_args(parent_parser=parser)
 
-    # checkpoints
-    save_top_k = 1
-    checkpoint_callback = ModelCheckpoint(save_top_k=save_top_k, monitor=monitor,
-                                          filename='best',
-                                          auto_insert_metric_name=False,
-                                          verbose=True)
+# Add all the available trainer options to argparse#
+parser = pl.Trainer.add_argparse_args(parser)
 
-    # Learning rate monitor
-    lr_monitor = LearningRateMonitor(logging_interval='step')
+# Parse input
+args = parser.parse_args()
 
-    # logger_callback= SlotAttentionLogger(val_samples=next(iter(val_dataset)))
+# ------------------------------------------------------------
+# Random
+# ------------------------------------------------------------
 
-    callbacks = [
-        checkpoint_callback,
-        # logger_callback,
-        # swa,
-        # early_stop_callback,
-        lr_monitor,
-    ]
+seed_everything(args.seed, workers=True)
 
-    # ------------------------------------------------------------
-    # Trainer
-    # ------------------------------------------------------------
-    # trainer parameters
-    profiler = 'simple'  # 'simple'/'advanced'/None
+# ------------------------------------------------------------
+# Logger
+# ------------------------------------------------------------
 
-    devices = [int(config.devices)]
-    # trainer
-    trainer = pl.Trainer(accelerator='gpu',
-                         devices=devices,
-                         max_epochs=config.max_epochs,
-                         profiler=profiler,
-                         callbacks=callbacks,
-                         logger=wandb_logger,
-                         deterministic=False)
+project_name = 'ViT EuroSAT'
+wandb_logger = WandbLogger(project=project_name, name=f'EuroSAT s{args.seed}')
 
-    trainer.fit(vit, datamodule=datamodule)
+# ------------------------------------------------------------
+# Load model
+# ------------------------------------------------------------
 
+datamodule = EuroSATDataModule(args.path_to_dataset)
+datamodule.prepare_data()
+datamodule.setup()
 
+# model
+print(args.path_to_dataset)
+dict_args = vars(args)
+dict_args['steps_per_epoch'] = len(datamodule.train_dataloader())
+vit = ViT(**dict_args)
+# ------------------------------------------------------------
+# Callbacks
+# ------------------------------------------------------------
 
+monitor = 'Validation MSE'
+
+# checkpoints
+save_top_k = 1
+checkpoint_callback = ModelCheckpoint(save_top_k=1, filename='best', auto_insert_metric_name=False, verbose=True)
+
+# Learning rate monitor
+lr_monitor = LearningRateMonitor(logging_interval='step')
+
+# logger_callback= SlotAttentionLogger(val_samples=next(iter(val_dataset)))
+
+callbacks = [
+    checkpoint_callback,
+    # logger_callback,
+    # swa,
+    # early_stop_callback,
+    lr_monitor,
+]
+
+# ------------------------------------------------------------
+# Trainer
+# ------------------------------------------------------------
+# trainer parameters
+profiler = 'simple'  # 'simple'/'advanced'/None
+
+devices = [int(args.devices)]
+# trainer
+trainer = pl.Trainer(accelerator='gpu',
+                     devices=devices,
+                     max_epochs=args.max_epochs,
+                     profiler=profiler,
+                     callbacks=callbacks,
+                     logger=wandb_logger,
+                     # precision=16,
+                     deterministic=False)
+
+if not len(args.from_checkpoint):
+    args.from_checkpoint = None
+
+# Train
+trainer.fit(vit, datamodule=datamodule)
 
 # TODO: cosine ecodings
 # TODO: linear encodings
