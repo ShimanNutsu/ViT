@@ -19,7 +19,7 @@ class Block(nn.Module):
     def __init__(self, dim, num_heads=8, mlp_ratio=4, drop_rate=0.):
         super().__init__()
         self.norm_pre = nn.LayerNorm(dim)
-        self.attention = Attention(dim, num_heads, drop_rate, drop_rate)
+        self.attention = Attention(dim, 64, num_heads, drop_rate, drop_rate)
         self.mlp = MLP(dim, dim * mlp_ratio, dim, drop_rate)
         self.norm_pos = nn.LayerNorm(dim)
 
