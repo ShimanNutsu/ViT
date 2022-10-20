@@ -9,18 +9,6 @@ from src.modules.img_patches import ImgPatches
 from src.modules.transformer import Transformer
 
 
-def posemb_sincos_2d(patches, temperature=10000):
-    _, h, w, dim, device, dtype = *patches.shape, patches.device, patches.dtype
-
-    y, x = torch.meshgrid(torch.arange(h, device=device), torch.arange(w, device=device), indexing='ij')
-    assert (dim % 4) == 0, 'feature dimension must be multiple of 4 for sincos emb'
-    omega = torch.arange(dim // 4, device=device) / (dim // 4 - 1)
-    omega = 1. / (temperature ** omega)
-
-    y = y.flatten()[:, None] * omega[None, :]
-    x = x.flatten()[:, None] * omega[None, :]
-    pe = torch.cat((x.sin(), x.cos(), y.sin(), y.cos()), dim=1)
-    return pe.type(dtype)
 
 
 class ViT(pl.LightningModule):
@@ -29,7 +17,8 @@ class ViT(pl.LightningModule):
         parser = parent_parser.add_argument_group("ViT")
 
         # model options
-        parser.add_argument("--lr", type=float, default=0.00025)
+        parser.add_argument("--lr", type=float, default=0.0004)
+        parser.add_argument("--num_classes", type=int, default=10)
         parser.add_argument("--img_size", type=int, default=64)
 
         return parent_parser
@@ -38,7 +27,7 @@ class ViT(pl.LightningModule):
                  img_size=64,
                  patch_size=16,
                  in_ch=3,
-                 num_classes=1000,
+                 num_classes=10,
                  embed_dim=768,
                  depth=12,
                  num_heads=12,
