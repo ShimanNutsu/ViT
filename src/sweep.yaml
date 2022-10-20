@@ -13,4 +13,4 @@ parameters:
   devices:
     value: 0
   max_epochs:
-    value: 2
+    value: 10
