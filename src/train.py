@@ -20,7 +20,8 @@ from src.model.vit import ViT
 
 # Sweep parameters
 hyperparameter_defaults = dict(
-    data_path='./dataset/data',
+    name='sweep1',
+    path_to_dataset='./dataset/data',
     batch_size=32,
     lr=0.0004,
     grad_batches=1,
