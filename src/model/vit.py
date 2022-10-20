@@ -77,7 +77,7 @@ class ViT(pl.LightningModule):
         y_pred = self.forward(x)
         loss = self.loss_fn(y_pred, y)
         self.train_acc(y_pred, y)
-        self.log('Train acc', self.train_acc, on_step=True)
+        self.log('Train acc', self.train_acc)
         self.log('Train CE', loss)
         return loss
 
@@ -86,7 +86,7 @@ class ViT(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
         self.val_acc(y_pred, y)
-        self.log('Train acc', self.val_acc, on_step=True)
+        self.log('Val acc', self.val_acc)
         self.log('Validation CE', loss)
 
     def test_step(self, batch, batch_idx):
