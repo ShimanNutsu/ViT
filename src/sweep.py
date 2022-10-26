@@ -1,6 +1,6 @@
 import yaml
 import wandb
-from train import train
+from train_sweep import train
 
 from pathlib import Path
 

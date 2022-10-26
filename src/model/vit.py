@@ -20,6 +20,7 @@ class ViT(pl.LightningModule):
         parser.add_argument("--lr", type=float, default=0.0004)
         parser.add_argument("--num_classes", type=int, default=10)
         parser.add_argument("--img_size", type=int, default=64)
+        parser.add_argument("--optimizer", type=str, default="AdamW")
 
         return parent_parser
 
@@ -33,10 +34,12 @@ class ViT(pl.LightningModule):
                  num_heads=12,
                  mlp_ratio=4,
                  drop_rate=0.3,
+                 optimizer="AdamW",
                  lr: float = 0.00015,
                  momentum: float = 0.9,
                  **kwargs):
         super().__init__()
+        self.optimizer_name = optimizer
         self.momentum = momentum
         self.lr = lr
         self.embed_dim = embed_dim
@@ -66,7 +69,14 @@ class ViT(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
+        if self.optimizer_name == "AdamW":
+            optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
+        elif self.optimizer_name == "Adam":
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        elif self.optimizer_name == "NesterovSGD":
+            optimizer = torch.optim.SGD(self.parameters(), lr=self.lr, nesterov=True)
+        else:
+            raise ValueError("Wrong optimizer name, try another one")
         scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=self.lr,
                                                         epochs=self.hparams['max_epochs'],
                                                         steps_per_epoch=self.hparams['steps_per_epoch'],

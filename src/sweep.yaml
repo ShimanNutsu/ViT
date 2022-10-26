@@ -5,7 +5,9 @@ metric:
   goal: maximize
 parameters:
   lr:
-    values: [0.01, 0.05, 0.001, 0.005, 0.0001, 0.0005, 0.00001]
+    values: [0.01, 0.005, 0.0001]
+  optimizer:
+    values: ["Adam", "AdamW", "NesterovSGD"]
   seed:
     value: 0
   path_to_dataset:
@@ -13,4 +15,4 @@ parameters:
   devices:
     value: 0
   max_epochs:
-    value: 10
+    value: 35
