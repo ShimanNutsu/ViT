@@ -62,7 +62,7 @@ seed_everything(args.seed, workers=True)
 # ------------------------------------------------------------
 
 project_name = 'ViT EuroSAT'
-wandb_logger = WandbLogger(project=project_name, name=f'EuroSAT s{args.seed}')
+wandb_logger = WandbLogger(project=project_name)
 
 # ------------------------------------------------------------
 # Load model
