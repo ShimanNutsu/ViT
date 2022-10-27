@@ -75,7 +75,7 @@ datamodule.setup()
 # model
 print(args.path_to_dataset)
 dict_args = vars(args)
-dict_args['steps_per_epoch'] = len(datamodule.val_dataloader())
+dict_args['steps_per_epoch'] = len(datamodule.train_dataloader())
 vit = ViT(**dict_args)
 # ------------------------------------------------------------
 # Callbacks
