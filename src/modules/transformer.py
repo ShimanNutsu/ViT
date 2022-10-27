@@ -64,9 +64,11 @@ class MLP(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None,
                  dropout=0.):
         super().__init__()
-        self.lin1 = nn.Linear(in_features, hidden_features)
-        self.act = nn.GELU()
-        self.lin2 = nn.Linear(hidden_features, out_features)
+        self.mlp = nn.Sequential(
+            nn.Linear(in_features, hidden_features),
+            nn.GELU(),
+            nn.Linear(hidden_features, out_features),
+        )
 
     def forward(self, x):
         x = self.act(self.lin1(x))
