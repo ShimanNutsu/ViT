@@ -61,7 +61,7 @@ seed_everything(args.seed, workers=True)
 # Logger
 # ------------------------------------------------------------
 
-project_name = 'ViT EuroSAT'
+project_name = 'vit_eurosat'
 wandb_logger = WandbLogger(project=project_name)
 
 # ------------------------------------------------------------
